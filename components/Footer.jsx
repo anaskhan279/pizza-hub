@@ -1,7 +1,16 @@
 import Image from "next/image";
 import styles from "../styles/Footer.module.css";
+import stylesd from "../styles/Add.module.css";
+import { useRouter } from "next/router";
+
 
 const Footer = () => {
+  const router = useRouter();
+  
+  const handleClick = (e) => {
+    e.preventDefault()
+    router.push("/admin")
+  }
   return (
     <div className={styles.container}>
       <div className={styles.item}>
@@ -37,6 +46,9 @@ const Footer = () => {
             SATURDAY - SUNDAY
             <br /> 11:00 AM – 7:00 PM
           </p>
+          <div onClick={handleClick} className={stylesd.mainAddButton}>
+            Admin
+          </div>
         </div>
       </div>
     </div>
