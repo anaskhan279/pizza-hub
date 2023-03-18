@@ -7,6 +7,9 @@ import Featured from '../components/Featured'
 import PizzaList from '../components/PizzaList'
 import styles from '../styles/Home.module.css'
 import { useState } from 'react';
+import Product from "../models/Product";
+import dbConnect from "../util/mongo";
+
 
 export default function Home({pizzaList, admin}) {
   const [close,setClose]=useState(true);
@@ -28,15 +31,22 @@ export default function Home({pizzaList, admin}) {
 export const getServerSideProps=async(ctx)=>{
   const myCookie = ctx.req?.cookies || "";
   let admin = false;
-  if(myCookie.token === process.env.TOKEN)
-  {
-    admin=true;
-  } 
-  const res = await axios.get("http://localhost:3000/api/products");
-    return{
-      props:{
-        pizzaList:res.data,
-        admin
-      }
-    }
+  if (myCookie.token === process.env.TOKEN) {
+    admin = true;
+  }
+  await dbConnect();
+  let products = [];
+  try {
+    products = await Product.find();
+    products = await JSON.parse(JSON.stringify(products));
+  } catch (error) {
+    console.log(error);
+  }
+
+  return {
+    props: {
+      pizzaList: products,
+      admin,
+    },
+  };
  }

@@ -2,6 +2,9 @@ import axios from "axios";
 import Image from "next/image";
 import { useState } from "react";
 import styles from "../../styles/Admin.module.css";
+import Product from "../../models/Product";
+import Order from "../../models/Order";
+import dbConnect from "../../util/mongo";
 
 const Index = ({ orders, products }) => {
   const [pizzaList, setPizzaList] = useState(products);
@@ -11,8 +14,11 @@ const Index = ({ orders, products }) => {
   const handleDelete = async (id) => {
     console.log(id);
     try {
+      // const res = await axios.delete(
+      //   "http://localhost:3000/api/products/" + id
+      // );
       const res = await axios.delete(
-        "http://localhost:3000/api/products/" + id
+        "/api/products/" + id
       );
       setPizzaList(pizzaList.filter((pizza) => pizza._id !== id));
     } catch (err) {
@@ -25,7 +31,7 @@ const Index = ({ orders, products }) => {
     const currentStatus = item.status;
 
     try {
-      const res = await axios.put("http://localhost:3000/api/orders/" + id, {
+      const res = await axios.put("/api/orders/" + id, {
         status: currentStatus + 1,
       });
       setOrderList([
@@ -129,13 +135,30 @@ export const getServerSideProps = async (ctx) => {
      },
    };
   }
-  const productRes = await axios.get("http://localhost:3000/api/products");
-  const orderRes = await axios.get("http://localhost:3000/api/orders");
+
+  await dbConnect();
+  let products = [];
+  let orders = [];
+  try {
+    products = await Product.find();
+    products = await JSON.parse(JSON.stringify(products));
+  } catch (error) {
+    console.log(error);
+  }
+  
+  try {
+    orders = await Order.find();
+    orders = await JSON.parse(JSON.stringify(orders));
+  } catch (error) {
+    console.log(error);
+  }
+  // const productRes = await axios.get("http://localhost:3000/api/products");
+  // const orderRes = await axios.get("http://localhost:3000/api/orders");
 
   return {
     props: {
-      orders: orderRes.data,
-      products: productRes.data,
+      orders: orders,
+      products: products,
     },
   };
 };
